@@ -44,19 +44,19 @@ For the tablet to be usable in-game, you need to add the `tablet` item to your `
 
     ```lua
     ['tablet'] = {
-        label = 'Tablet', -- Changed label to English for consistency if desired, keep 'Tablette' if you prefer
+        label = 'Tablet',
         weight = 500,
         stack = false,
         close = true,
         consume = 0,
         server = {
-            export = "old_tablet.tablet", -- This export is called when the item is 'used'
+            export = "old_tablet.tablet", 
         },
         buttons = {
             {
-                label = 'Modify Link', -- Changed button label to English
+                label = 'Modify Link', 
                 action = function(slot)
-                    exports.old_tablet:editLink(slot) -- Calls the script's link modification function
+                    exports.old_tablet:editLink(slot) 
                 end
             },
         }
