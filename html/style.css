@@ -1,0 +1,144 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+
+#tabletContainer {
+    position: absolute;
+    width: 60%;
+
+    height: 50%;
+    max-width: 800px;
+    max-height: 600px;
+    min-width: 400px;
+    min-height: 300px;
+    background: #111;
+    border: 12px solid #444;
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+    display: none;
+    flex-direction: column;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+    left: 50%;
+    top: 50%;
+}
+
+
+#tabletFrame {
+    flex: 1;
+    border: none;
+    border-radius: 5px;
+}
+
+
+#closeBtn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #ff4c4c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 100;
+    transition: background 0.2s;
+}
+
+#closeBtn:hover {
+    background: #cc0000;
+}
+
+
+#errorMsg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border-radius: 10px;
+    z-index: 20;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.errorContent {
+    text-align: center;
+    color: #ff4444;
+}
+
+.errorIcon {
+    font-size: 70px;
+    margin-bottom: 15px;
+}
+
+.errorTitle {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.errorText {
+    font-size: 18px;
+    color: #ddd;
+}
+
+
+@keyframes popInAnim {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes popOutAnim {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.popIn {
+    animation: popInAnim 0.3s ease forwards;
+}
+
+.popOut {
+    animation: popOutAnim 0.3s ease forwards;
+}
