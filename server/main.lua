@@ -1,43 +1,47 @@
 local function sanitizeLink(url)
     if url:match("youtube%.com/watch%?v=") then
         local videoId = url:match("v=([%w-_]+)")
-        if videoId then
-            return "https://www.youtube.com/embed/" .. videoId
-        end
+        if videoId then return "https://www.youtube.com/embed/" .. videoId end
     end
-
-
     if url:match("youtu%.be/") then
         local videoId = url:match("be/([%w-_]+)")
-        if videoId then
-            return "https://www.youtube.com/embed/" .. videoId
-        end
+        if videoId then return "https://www.youtube.com/embed/" .. videoId end
     end
-
-
     if url:match("twitch%.tv/([%w_]+)") then
         local channel = url:match("twitch%.tv/([%w_]+)")
-        return "https://player.twitch.tv/?channel=" .. channel .. "&parent=localhost"
+        return ("https://player.twitch.tv/?channel=%s&parent=localhost"):format(channel)
     end
-
-
     if url:match("google%.com/maps") then
         url = url:gsub("/maps/place/", "/maps/embed/place/")
         url = url:gsub("/maps/", "/maps/embed/")
         return url
     end
-
-
     return url
 end
 
-
+local function sanitizeLinks(list)
+    local out, seen = {}, {}
+    for _, raw in ipairs(list or {}) do
+        if type(raw) == 'string' then
+            local url = raw:gsub('^%s+', ''):gsub('%s+$', '')
+            if url ~= '' then
+                if not url:match('^https?://') then url = 'https://' .. url end
+                url = sanitizeLink(url)
+                if not seen[url] then
+                    seen[url] = true
+                    table.insert(out, url)
+                    if #out >= 20 then break end
+                end
+            end
+        end
+    end
+    return out
+end
 
 exports('tablet', function(event, item, inventory, slot, data)
     if event == 'usingItem' then
         local tablets = exports.ox_inventory:Search(inventory.id, 1, 'tablet')
-        local tablet = nil
-
+        local tablet
         for _, v in pairs(tablets) do
             if v.slot == slot then
                 tablet = v
@@ -46,39 +50,60 @@ exports('tablet', function(event, item, inventory, slot, data)
         end
 
         local metadata = (tablet and tablet.metadata) or {}
+        local links = metadata.links
+        local single = metadata.link
 
-        if not metadata.link then
-            TriggerClientEvent('old_tablet:requestLink', inventory.id, slot)
-            return false
-        else
-            TriggerClientEvent('old_tablet:openTablet', inventory.id, metadata.link)
+
+        if (not links or #links == 0) and type(single) == 'string' and single ~= '' then
+            links = { sanitizeLink(single) }
+            exports.ox_inventory:SetMetadata(inventory.id, slot, { links = links, link = links[1] })
         end
 
+        if not links or #links == 0 then
+            TriggerClientEvent('old_tablet:requestLinks', inventory.id, slot, links or {})
+            return false
+        else
+            TriggerClientEvent('old_tablet:openTablet', inventory.id, links)
+        end
         return
     end
 end)
 
 
+lib.callback.register('old_tablet:getLinks', function(source, slot)
+    local links = {}
+    if type(slot) ~= 'number' then return links end
 
-RegisterNetEvent('old_tablet:saveLink', function(slot, link)
+    local items = exports.ox_inventory:Search(source, 1, 'tablet')
+    if items then
+        for _, v in pairs(items) do
+            if v.slot == slot then
+                local md = v.metadata or {}
+                if type(md.links) == 'table' then
+                    links = md.links
+                elseif type(md.link) == 'string' and md.link ~= '' then
+                    links = { md.link }
+                end
+                break
+            end
+        end
+    end
+    return links
+end)
+
+RegisterNetEvent('old_tablet:saveLinks', function(slot, list)
     local src = source
+    if type(slot) ~= 'number' or type(list) ~= 'table' then return end
 
+    local cleaned = sanitizeLinks(list)
 
-    if not link or not link:match("^http") then
-        TriggerClientEvent('ox_lib:notify', src, {
-            type = 'error',
-            description = 'Lien invalide (doit commencer par http:// ou https://)'
-        })
+    if #cleaned == 0 then
+        exports.ox_inventory:SetMetadata(src, slot, { links = nil, link = nil })
+        TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'Liens supprimés' })
         return
     end
 
-
-    local safeLink = sanitizeLink(link)
-
-    exports.ox_inventory:SetMetadata(src, slot, { link = safeLink })
-
-    TriggerClientEvent('ox_lib:notify', src, {
-        type = 'success',
-        description = 'Lien enregistré sur la tablette'
-    })
+    exports.ox_inventory:SetMetadata(src, slot, { links = cleaned, link = cleaned[1] })
+    TriggerClientEvent('ox_lib:notify', src,
+        { type = 'success', description = ('%d lien(s) enregistré(s)'):format(#cleaned) })
 end)

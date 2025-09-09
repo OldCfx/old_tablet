@@ -1,28 +1,49 @@
-<html>
+<!doctype html>
+<html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <title>Tablette</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <title>Tablette</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="tabletContainer">
-        
-        <button id="closeBtn">X</button>
-
-       
+  <div id="tabletContainer">
+    <div id="tabletInner">
+     
+      <div id="viewport">
         <iframe id="tabletFrame"></iframe>
 
-        
+       
         <div id="errorMsg">
-            <div class="errorContent">
-                <div class="errorIcon">⚠️</div>
-                <div class="errorTitle">Site incompatible</div>
-                <div class="errorText">Ce site ne peut pas être affiché<br>dans la tablette</div>
-            </div>
+          <div class="errorContent">
+            <div class="errorIcon">⚠️</div>
+            <div class="errorTitle">Site incompatible</div>
+            <div class="errorText">Ce site ne peut pas être affiché<br>dans la tablette</div>
+          </div>
         </div>
-    </div>
+      </div>
 
-    
-    <script src="script.js"></script>
+ 
+      <aside id="sideToolbar" aria-label="Barre d’outils">
+       
+        <div id="toolbarHandle" title="Outils" tabindex="0"></div>
+
+ 
+        <div class="toolbarContent">
+          <div class="toolbarHeader">Outils</div>
+          <div class="toolbarButtons">
+            <button class="toolBtn" data-action="refresh">Rafraîchir</button>
+            <button class="toolBtn danger" data-action="close">Fermer</button>
+          </div>
+
+          <div class="toolSep"></div>
+
+          <div class="toolbarHeader">Sites</div>
+          <div id="siteList" class="siteList"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
